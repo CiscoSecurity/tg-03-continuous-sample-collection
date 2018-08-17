@@ -1,13 +1,13 @@
 import os
 import datetime
-import ConfigParser
+import configparser
 import requests
 
 # Specify the config file
 configFile = 'api.cfg'
 
 # Reading the config file to get settings
-config = ConfigParser.RawConfigParser()
+config = configparser.RawConfigParser()
 config.read(configFile)
 
 api_key = config.get('Main', 'api_key')
@@ -20,16 +20,16 @@ hostName = str.rstrip(hostName)
 if not os.path.exists('RUNNING'):
     os.makedirs('RUNNING')
 
-def get( query ):
+def get(query):
     try:
-        r = requests.get(query, verify=False)
+        r = requests.get(query)
         if not r.status_code // 100 == 2:
             return "Error: {}".format(r)
         return r.json()
     except requests.exceptions.RequestException as e:
         return 'Error: %s' % (e)
 
-def sampleQuery ( ):
+def sampleQuery():
     baseUrl = 'https://%s/api/v2/samples?org_only=True&api_key=%s&after=last%%20hour' % (hostName, api_key)
     return baseUrl
 
@@ -38,5 +38,5 @@ current_samples = get(sampleQuery())
 for sample in current_samples['data']['items']:
     if sample['state'] == 'run':
         SID = sample['id']
-        print SID,'is running'
+        print(SID,'is running')
         os.system("touch RUNNING/"+SID)

@@ -1,12 +1,12 @@
 import os
-import ConfigParser
+import configparser
 import requests
 
 # Specify the config file
 configFile = 'api.cfg'
 
 # Reading the config file to get settings
-config = ConfigParser.RawConfigParser()
+config = configparser.RawConfigParser()
 config.read(configFile)
 
 api_key = config.get('Main', 'api_key')
@@ -28,7 +28,7 @@ def formatSIDS ( SIDS ):
 
 def get( query ):
     try:
-        r = requests.get(query, verify=False)
+        r = requests.get(query)
         if not r.status_code // 100 == 2:
             return "Error: {}".format(r)
         return r.json()
@@ -51,5 +51,5 @@ for sample in status['data']:
     state = sample['state']
     SID = sample['sample']
     if state == 'succ':
-        print get(threatQuery(SID))['data']['score']
+        print(get(threatQuery(SID))['data']['score'])
         os.remove('RUNNING/'+SID)
