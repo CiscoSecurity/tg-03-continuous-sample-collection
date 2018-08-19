@@ -1,55 +1,56 @@
 import os
+import sys
+import json
 import configparser
 import requests
 
-# Specify the config file
-configFile = 'api.cfg'
 
-# Reading the config file to get settings
-config = configparser.RawConfigParser()
-config.read(configFile)
+def get(url, **params):
+    """ GET the URL and return decoded JSON"""
+    try:
+        response = session.get(url, params=params)
+        response.raise_for_status()
+        return response.json()
+    except requests.exceptions.RequestException as error_message:
+        sys.exit(error_message)
 
-api_key = config.get('Main', 'api_key')
-api_key = str.rstrip(api_key)
 
-hostName = config.get('Main', 'hostName')
-hostName = str.rstrip(hostName)
+def threat_query(_host_name, _sample_id):
+    threat_url = f'https://{host_name}/api/v2/samples/{_sample_id}/threat'
+    return get(threat_url)
+
+
+def state_query(_host_name, sample_ids):
+    sample_ids = json.dumps(sample_ids)
+    state_url = f'https://{host_name}/api/v2/samples/state'
+    return get(state_url, ids=sample_ids)
+
 
 # Create RESULTS directory if it does not exist
 if not os.path.exists('RUNNING'):
     os.makedirs('RUNNING')
 
-def formatSIDS ( SIDS ):
-    formatted = ''
-    for SID in running_sids:
-        formatted = formatted+"\"%s\"," % SID
-    formatted = '['+formatted[:-1]+']'
-    return formatted
+# Specify the config file
+config_file = 'api.cfg'
 
-def get( query ):
-    try:
-        r = requests.get(query)
-        if not r.status_code // 100 == 2:
-            return "Error: {}".format(r)
-        return r.json()
-    except requests.exceptions.RequestException as e:
-        return 'Error: %s' % (e)
+# Reading the config file to get settings
+config = configparser.ConfigParser()
+config.read(config_file)
+api_key = config.get('Main', 'api_key')
+host_name = config.get('Main', 'host_name')
 
-def threatQuery ( SID ):
-    baseUrl = 'https://%s/api/v2/samples/%s/threat?&api_key=%s' % (hostName, SID, api_key)
-    return baseUrl
+session = requests.session()
+auth_param = {'api_key': api_key}
+session.params.update(auth_param)
 
-def stateQuery ( SIDS ):
-    baseUrl = 'https://%s/api/v2/samples/state?ids=%s&api_key=%s' % (hostName, SIDS, api_key)
-    return baseUrl
+recent_sample_ids = os.listdir("RUNNING")
 
-running_sids = os.listdir("RUNNING")
+if recent_sample_ids:
+    status = state_query(host_name, recent_sample_ids)
 
-status = get(stateQuery(formatSIDS(running_sids)))
-
-for sample in status['data']:
-    state = sample['state']
-    SID = sample['sample']
-    if state == 'succ':
-        print(get(threatQuery(SID))['data']['score'])
-        os.remove('RUNNING/'+SID)
+    for sample in status['data']:
+        state = sample['state']
+        sample_id = sample['sample']
+        if state == 'succ':
+            print(threat_query(host_name, sample_id)['data']['score'], sample_id)
+            # os.remove(f'RUNNING/{sample_id}')

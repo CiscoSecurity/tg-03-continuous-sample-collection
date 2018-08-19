@@ -1,42 +1,43 @@
 import os
-import datetime
+import sys
+import pathlib
 import configparser
 import requests
 
-# Specify the config file
-configFile = 'api.cfg'
 
-# Reading the config file to get settings
-config = configparser.RawConfigParser()
-config.read(configFile)
+def get(url, **params):
+    """ GET the URL and return decoded JSON"""
+    try:
+        response = requests.get(url, params=params)
+        response.raise_for_status()
+        return response.json()
+    except requests.exceptions.RequestException as error_message:
+        sys.exit(error_message)
 
-api_key = config.get('Main', 'api_key')
-api_key = str.rstrip(api_key)
-
-hostName = config.get('Main', 'hostName')
-hostName = str.rstrip(hostName)
 
 # Create RESULTS directory if it does not exist
 if not os.path.exists('RUNNING'):
     os.makedirs('RUNNING')
 
-def get(query):
-    try:
-        r = requests.get(query)
-        if not r.status_code // 100 == 2:
-            return "Error: {}".format(r)
-        return r.json()
-    except requests.exceptions.RequestException as e:
-        return 'Error: %s' % (e)
+# Specify the config file
+config_file = 'api.cfg'
 
-def sampleQuery():
-    baseUrl = 'https://%s/api/v2/samples?org_only=True&api_key=%s&after=last%%20hour' % (hostName, api_key)
-    return baseUrl
+# Reading the config file to get settings
+config = configparser.ConfigParser()
+config.read(config_file)
+api_key = config.get('Main', 'api_key')
+host_name = config.get('Main', 'host_name')
 
-current_samples = get(sampleQuery())
+parameters = {'api_key':api_key,
+              'after':'last day',
+              'state':'succ',
+              'org_only':True}
+
+submission_search_url = f'https://{host_name}/api/v2/search/submissions'
+
+current_samples = get(submission_search_url, **parameters)
 
 for sample in current_samples['data']['items']:
-    if sample['state'] == 'run':
-        SID = sample['id']
-        print(SID,'is running')
-        os.system("touch RUNNING/"+SID)
+    sample_id = sample['item']['sample']
+    print(sample_id)
+    pathlib.Path(f'RUNNING/{sample_id}').touch()
