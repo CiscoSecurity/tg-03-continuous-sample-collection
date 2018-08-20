@@ -53,4 +53,4 @@ if recent_sample_ids:
         sample_id = sample['sample']
         if state == 'succ':
             print(threat_query(host_name, sample_id)['data']['score'], sample_id)
-            # os.remove(f'RUNNING/{sample_id}')
+            os.remove(f'RUNNING/{sample_id}')
