@@ -29,7 +29,7 @@ api_key = config.get('Main', 'api_key')
 host_name = config.get('Main', 'host_name')
 
 parameters = {'api_key':api_key,
-              'after':'last day',
+              'after':'last hour',
               'state':'succ',
               'org_only':True}
 
