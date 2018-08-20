@@ -30,7 +30,7 @@ host_name = config.get('Main', 'host_name')
 
 parameters = {'api_key':api_key,
               'after':'last hour',
-              'state':'succ',
+              'state':'wait',
               'org_only':True}
 
 submission_search_url = f'https://{host_name}/api/v2/search/submissions'
