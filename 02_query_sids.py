@@ -15,15 +15,25 @@ def get(url, **params):
         sys.exit(error_message)
 
 
+def post(url, data):
+    """ POST to the URL and return decoded JSON"""
+    try:
+        response = session.post(url, data=data)
+        response.raise_for_status()
+        return response.json()
+    except requests.exceptions.RequestException as error_message:
+        sys.exit(error_message)
+
+
 def threat_query(_host_name, _sample_id):
     threat_url = f'https://{host_name}/api/v2/samples/{_sample_id}/threat'
     return get(threat_url)
 
 
 def state_query(_host_name, sample_ids):
-    sample_ids = json.dumps(sample_ids)
+    data = {'ids':json.dumps(sample_ids)}
     state_url = f'https://{host_name}/api/v2/samples/state'
-    return get(state_url, ids=sample_ids)
+    return post(state_url, data=data)
 
 
 # Create RESULTS directory if it does not exist
