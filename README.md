@@ -1,3 +1,5 @@
+[![Gitter chat](https://img.shields.io/badge/gitter-join%20chat-brightgreen.svg)](https://gitter.im/CiscoSecurity/Threat-Grid "Gitter chat")
+
 ### Continuous Sample Collection
 Pair of scripts to continuously collect Sample IDs as submitted samples are processed. 
 
