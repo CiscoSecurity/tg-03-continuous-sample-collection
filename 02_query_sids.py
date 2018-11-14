@@ -26,13 +26,13 @@ def post(url, data):
 
 
 def threat_query(_host_name, _sample_id):
-    threat_url = f'https://{host_name}/api/v2/samples/{_sample_id}/threat'
+    threat_url = 'https://{}/api/v2/samples/{}/threat'.format(_host_name, _sample_id)
     return get(threat_url)
 
 
 def state_query(_host_name, sample_ids):
     data = {'ids':json.dumps(sample_ids)}
-    state_url = f'https://{host_name}/api/v2/samples/state'
+    state_url = 'https://{}/api/v2/samples/state'.format(_host_name)
     return post(state_url, data=data)
 
 
@@ -63,4 +63,4 @@ if recent_sample_ids:
         sample_id = sample['sample']
         if state == 'succ':
             print(threat_query(host_name, sample_id)['data']['score'], sample_id)
-            os.remove(f'RUNNING/{sample_id}')
+            os.remove('RUNNING/{}'.format(sample_id))

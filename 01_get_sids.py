@@ -33,11 +33,11 @@ parameters = {'api_key':api_key,
               'state':'wait',
               'org_only':True}
 
-submission_search_url = f'https://{host_name}/api/v2/search/submissions'
+submission_search_url = 'https://{}/api/v2/search/submissions'.format(host_name)
 
 current_samples = get(submission_search_url, **parameters)
 
 for sample in current_samples['data']['items']:
     sample_id = sample['item']['sample']
     print(sample_id)
-    pathlib.Path(f'RUNNING/{sample_id}').touch()
+    pathlib.Path('RUNNING/{}'.format(sample_id)).touch()
