@@ -12,7 +12,7 @@ The authentication parameters are set in the ```api.cfg``` :
 - api_key
 
 ### Usage:
-Setup 01_get_sids.py to run on a cron every minute
+Setup 01_get_sids.py to run on a cron every minute  
 Setup 02_query_sids.py to run on a cron every 5 minutes
 
 ### Example script output:
